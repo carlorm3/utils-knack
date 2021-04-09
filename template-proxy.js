@@ -2,12 +2,11 @@ KnackInitAsync = function ($, callback) {
 
     window.$ = $;
   	window.LazyLoad = LazyLoad;
-    LazyLoad.js(['https://s3.amazonaws.com/soluntech-www/KnackJS/soluntech-knack-lib-min.js'], function () {
+    LazyLoad.js(['https://s3.amazonaws.com/soluntech-www/KnackJS/knack-proxy-lib.js'], function () {
 
         var lib = new Soluntech({
-            applicationID: atob(atob('api_id_hash')),
-            restAPIkey: atob(atob('api_key_hash')),
-            environment: 'development'
+         applicationID: 'generated_id_proxy',
+         environment: 'development'
         });
 
         lib.set('OBJECTS_ID', {
@@ -58,9 +57,6 @@ KnackInitAsync = function ($, callback) {
                 e.preventDefault();
                 lib.showErrorMessage('view_1083','The quantity received cannot be higher than '+totalRemaining);
                 lib.removeMessages('view_1083');
-                $('html, body').animate({
-                scrollTop: $("#view_1083").offset().top
-                }, 1000);
                 form.submit();
             });
         });
@@ -132,51 +128,6 @@ KnackInitAsync = function ($, callback) {
                     // $('#view_2937 tr#'+invoice.id+' .field_1496 span').html('<a href="https://headofsecurity.knack.com/the-hs3-platform-w-records-and-tasks#service-requests/view-service-details3/'+invoice.field_1496_raw[0].id+'/">'+invoice.field_1496+'</a>')
                 }
             }
-        });
-
-        //checkbox logic
-        lib.addTask('Select Licenses with checkboxes', 'knack-view-render.view_609', function(event, view, data) {
-
-            var info = Knack.models.view_609.data.models.map(function (r) { return r.toJSON(); });
-
-            $('#'+view.key+' table thead tr').prepend(
-                $('<th>')
-                .append(
-                    $('<input>')
-                    .addClass('select-all')
-                    .attr({
-                        'type': 'checkbox',
-                        'checked': false
-                    })
-                    .click(lib.SelectAllCheckboxes)
-                )
-            );
-
-            $('#'+view.key+' table tbody tr').prepend(
-                $('<td>')
-                .append(
-                    $('<input>')
-                    .addClass('select-license')
-                    .attr({
-                        'type': 'checkbox',
-                        'checked': false
-                    })
-                )
-            );
-
-            info.forEach(function(info) {
-                if (info.field_1830_raw.length == 0) {
-                    $('tr#' + info.id + ' .select-license').css('display', 'none').removeClass('select-license');
-                }
-            });
-
-            //read them
-            if ($('.select-license:checked').length == 0 && $('.select-license2:checked').length==0) {
-                return $('#view_656 h2').text("At least one license must be selected.");
-            }
-
-            var groups =$('.select-license:checked, .select-license2:checked').closest('tr');
-
         });
 
         callback();
