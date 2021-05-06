@@ -76,7 +76,7 @@ Soluntech.prototype.set = function (key, value) {
 Soluntech.prototype.log = function () {
 
     var args = Array.prototype.slice.call(arguments);
-    if (console && typeof(console.log) === 'function' && this.isDevelopment) {
+    if (console && typeof (console.log) === 'function' && this.isDevelopment) {
         console.log.apply(console, args);
     }
 };
@@ -84,7 +84,7 @@ Soluntech.prototype.log = function () {
 Soluntech.prototype.warn = function () {
 
     var args = Array.prototype.slice.call(arguments);
-   if (console && typeof(console.warn) === 'function' && this.isDevelopment) {
+    if (console && typeof (console.warn) === 'function' && this.isDevelopment) {
         console.warn.apply(console, args);
     }
 };
@@ -92,7 +92,7 @@ Soluntech.prototype.warn = function () {
 Soluntech.prototype.error = function () {
 
     var args = Array.prototype.slice.call(arguments);
-    if (console && typeof(console.error) === 'function' && this.isDevelopment) {
+    if (console && typeof (console.error) === 'function' && this.isDevelopment) {
         console.error.apply(console, args);
     }
 };
@@ -100,7 +100,7 @@ Soluntech.prototype.error = function () {
 Soluntech.prototype.debug = function () {
 
     var args = Array.prototype.slice.call(arguments);
-    if (console && typeof(console.debug) === 'function' && this.isDevelopment) {
+    if (console && typeof (console.debug) === 'function' && this.isDevelopment) {
         console.debug.apply(console, args);
     }
 };
@@ -269,41 +269,117 @@ Soluntech.prototype.find = function (objectId, filters, sortField, sortOrder, re
     var sortFEnc = encodeURIComponent(sortField);
     var sortOEnc = encodeURIComponent(sortOrder);
 
-    return this.$.ajax({
+    var dfd = $.Deferred();
+
+    $.ajax({
         type: 'GET',
         headers: this.headers,
-        url:  this.knackURL + 'objects/' + objectId + '/records?rows_per_page=' + recordPerPage +
-                '&filters=' + filterValEnc + "&sort_field=" + sortFEnc + "&sort_order=" +
-                sortOEnc
+        url: this.knackURL + 'objects/' + objectId + '/records?rows_per_page=' + recordPerPage +
+            '&filters=' + filterValEnc + "&sort_field=" + sortFEnc + "&sort_order=" +
+            sortOEnc,
+        triedCount: 0,
+        retryLimit: 3,
+        error: function (xhr, textStatus, errorThrown) {
+            console.log("error: " + this.triedCount);
+            this.triedCount++;
+            if (this.triedCount < this.retryLimit && xhr.status >= 500) {
+                console.log(this);
+                $.ajax(this);
+            } else {
+                dfd.reject(xhr);
+            }
+        },
+        success: function (response) {
+            dfd.resolve(response);
+        }
     });
+
+    return dfd.promise();
 };
 
 Soluntech.prototype.findById = function (objectId, id) {
 
-    return this.$.ajax({
+    var dfd = $.Deferred();
+
+    $.ajax({
         type: 'GET',
         headers: this.headers,
-        url:  this.knackURL + 'objects/' + objectId + '/records/' + id
+        url: this.knackURL + 'objects/' + objectId + '/records/' + id,
+        triedCount: 0,
+        retryLimit: 3,
+        error: function (xhr, textStatus, errorThrown) {
+            console.log("error: " + this.triedCount);
+            this.triedCount++;
+            if (this.triedCount < this.retryLimit && xhr.status >= 500) {
+                console.log(this);
+                $.ajax(this);
+            } else {
+                dfd.reject(xhr);
+            }
+        },
+        success: function (response) {
+            dfd.resolve(response);
+        }
     });
+
+    return dfd.promise();
 };
 
 Soluntech.prototype.update = function (objectId, id, data) {
 
-    return this.$.ajax({
+    var dfd = $.Deferred();
+
+    $.ajax({
         type: 'PUT',
         headers: this.headers,
-        url:  this.knackURL + 'objects/' + objectId + '/records/' + id,
-        data: data
+        url: this.knackURL + 'objects/' + objectId + '/records/' + id,
+        data: data,
+        triedCount: 0,
+        retryLimit: 3,
+        error: function (xhr, textStatus, errorThrown) {
+            console.log("error: " + this.triedCount);
+            this.triedCount++;
+            if (this.triedCount < this.retryLimit && xhr.status >= 500) {
+                console.log(this);
+                $.ajax(this);
+            } else {
+                dfd.reject(xhr);
+            }
+        },
+        success: function (response) {
+            dfd.resolve(response);
+        }
     });
+
+    return dfd.promise();
 };
 
 Soluntech.prototype.delete = function (objectId, id) {
 
-    return this.$.ajax({
+    var dfd = $.Deferred();
+
+    $.ajax({
         type: 'DELETE',
         headers: this.headers,
-        url:  this.knackURL + 'objects/' + objectId + '/records/' + id
+        url: this.knackURL + 'objects/' + objectId + '/records/' + id,
+        triedCount: 0,
+        retryLimit: 3,
+        error: function (xhr, textStatus, errorThrown) {
+            console.log("error: " + this.triedCount);
+            this.triedCount++;
+            if (this.triedCount < this.retryLimit && xhr.status >= 500) {
+                console.log(this);
+                $.ajax(this);
+            } else {
+                dfd.reject(xhr);
+            }
+        },
+        success: function (response) {
+            dfd.resolve(response);
+        }
     });
+
+    return dfd.promise();
 };
 
 Soluntech.prototype.deleteMultiple = function (objectId, info, callback) {
@@ -322,35 +398,35 @@ Soluntech.prototype.deleteMultiple = function (objectId, info, callback) {
         type: 'GET',
         headers: self.headers,
         url: self.knackURL + 'objects/' + objectId + '/records?rows_per_page=' + recordPerPage +
-                '&filters=' + filterValEnc + "&sort_field=" + sortFEnc + "&sort_order=" +
-                sortOEnc
+            '&filters=' + filterValEnc + "&sort_field=" + sortFEnc + "&sort_order=" +
+            sortOEnc
     })
-    .then(function (response) {
+        .then(function (response) {
 
-        var ids = response.records.map(function (record) {
+            var ids = response.records.map(function (record) {
 
-            return record.id;
-        });
+                return record.id;
+            });
 
-        if (!ids.length) {
-            return null;
-        }
-
-        return self.$.ajax({
-            type: 'POST',
-            headers: self.headers,
-            url: self.knackURL + 'objects/' + objectId + '/records/delete',
-            data: {
-                ids: ids
+            if (!ids.length) {
+                return null;
             }
-        });
-    })
-    .then(function (response) {
 
-        callback(null, response);
-        return null;
-    })
-    .fail(callback)
+            return self.$.ajax({
+                type: 'POST',
+                headers: self.headers,
+                url: self.knackURL + 'objects/' + objectId + '/records/delete',
+                data: {
+                    ids: ids
+                }
+            });
+        })
+        .then(function (response) {
+
+            callback(null, response);
+            return null;
+        })
+        .fail(callback)
 };
 
 Soluntech.prototype.enableElement = function (selector) {
@@ -373,12 +449,73 @@ Soluntech.prototype.disableElement = function (selector) {
 
 Soluntech.prototype.create = function (objectId, data) {
 
-    return this.$.ajax({
+    var dfd = $.Deferred();
+
+    $.ajax({
         type: 'POST',
         headers: this.headers,
-        url:  this.knackURL + 'objects/' + objectId + '/records',
-        data: data
+        url: this.knackURL + 'objects/' + objectId + '/records',
+        data: data,
+        triedCount: 0,
+        retryLimit: 3,
+        error: function (xhr, textStatus, errorThrown) {
+            console.log("error: " + this.triedCount);
+            this.triedCount++;
+            if (this.triedCount < this.retryLimit && xhr.status >= 500) {
+                console.log(this);
+                $.ajax(this);
+            } else {
+                dfd.reject(xhr);
+            }
+        },
+        success: function (response) {
+            dfd.resolve(response);
+        }
     });
+
+    return dfd.promise();
+};
+
+Soluntech.prototype.upload = function (type, blob, filename) {
+
+    var dfd = $.Deferred();
+    var upload_headers = this.headers;
+    delete upload_headers['content-type'];
+
+    var fd = new FormData();
+
+    if (filename) {
+        fd.append('files', blob, filename);
+    }
+    else {
+        fd.append('files', blob);
+    }
+
+    $.ajax({
+        type: 'POST',
+        headers: upload_headers,
+        url: this.knackURL + 'applications/' + this.applicationID + '/assets/' + type + '/upload',
+        data: fd,
+        processData: false,
+        contentType: false,
+        triedCount: 0,
+        retryLimit: 3,
+        error: function (xhr, textStatus, errorThrown) {
+            console.log("error: " + this.triedCount);
+            this.triedCount++;
+            if (this.triedCount < this.retryLimit && xhr.status >= 500) {
+                console.log(this);
+                $.ajax(this);
+            } else {
+                dfd.reject(xhr);
+            }
+        },
+        success: function (response) {
+            dfd.resolve(response);
+        }
+    });
+
+    return dfd.promise();
 };
 
 Soluntech.prototype.getFieldValue = function (object, field, type) {
@@ -543,7 +680,7 @@ Soluntech.prototype.hideInstructions = function (divField) {
 
 Soluntech.prototype.refreshView = function (view, done) {
 
-    done = done || function () {};
+    done = done || function () { };
 
     try {
         Knack.views[view].model.fetch({
@@ -575,7 +712,7 @@ Soluntech.prototype.removeIfIsInDOM = function (selector) {
 Object.defineProperty(Soluntech.prototype, 'isAuthenticated', {
     get: function isAuthenticated() {
 
-        return !Knack.user.id ? false: true;
+        return !Knack.user.id ? false : true;
     }
 });
 
@@ -585,8 +722,8 @@ Soluntech.prototype.startIdleTimer = function (userOptions) {
         selector: document,
         timeout: 300000,    // 5 mins
         idle: false,
-        userGoesIdleCallback: function () {},
-        userBecomesActive: function () {}
+        userGoesIdleCallback: function () { },
+        userBecomesActive: function () { }
     };
     var self = this;
 
@@ -603,7 +740,7 @@ Soluntech.prototype.startIdleTimer = function (userOptions) {
             options.userGoesIdleCallback(event, elem, obj);
         });
 
-        self.$(options.selector).on('active.idleTimer', function(event, elem, obj, triggerevent) {
+        self.$(options.selector).on('active.idleTimer', function (event, elem, obj, triggerevent) {
 
             options.userBecomesActive(event, elem, obj, triggerevent);
         });
