@@ -135,6 +135,15 @@ KnackInitAsync = function ($, callback) {
         });
 
         //checkbox logic
+
+        lib.addMethod('SelectAllCheckboxes', function (view) {
+            if ($('#' + view + ' .select-all-items').attr('checked')) {
+            $('#' + view + ' .select-item').attr('checked', true);
+            } else {
+            $('#' + view + ' .select-item').attr('checked', false);
+            }
+        });
+
         lib.addTask('Select Licenses with checkboxes', 'knack-view-render.view_609', function(event, view, data) {
 
             var info = Knack.models.view_609.data.models.map(function (r) { return r.toJSON(); });
@@ -148,8 +157,9 @@ KnackInitAsync = function ($, callback) {
                         'type': 'checkbox',
                         'checked': false
                     })
-                    .click(lib.SelectAllCheckboxes)
-                )
+                    .click(function(){
+                      lib.SelectAllCheckboxes(view.key)
+                    })                )
             );
 
             $('#'+view.key+' table tbody tr').prepend(
