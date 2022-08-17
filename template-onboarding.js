@@ -11,7 +11,7 @@ KnackInitAsync = function ($, callback) {
         });
 
         lib.set('OBJECTS_ID', {
-            order: 'object_x',
+            order: 'object_x', 
             orderDetail: 'object_x' 
         });
 
@@ -24,18 +24,12 @@ KnackInitAsync = function ($, callback) {
         });
 
 
-        //grab form
-        lib.addTask('renderView', 'knack-view-render.view_1083', function (e, v) {
-            var form = $('#view_1083 form');
+        //grab form logic for exercise 1
+        lib.addTask('renderView', 'knack-view-render.view_xx', function (e, v) {
+            var form = $('#view_xx form');
             var button = form.find('button:submit');
             button.click( function(e) {
                 e.preventDefault();
-                lib.showErrorMessage('view_1083','The quantity received cannot be higher than '+totalRemaining);
-                lib.removeMessages('view_1083');
-                $('html, body').animate({
-                scrollTop: $("#view_1083").offset().top
-                }, 1000);
-                form.submit();
             });
         });
 
